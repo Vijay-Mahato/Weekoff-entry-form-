@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Work Calendar - Weekoff Entry</title> <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* ========================================== Custom Styles for Calendar UI ========================================== */
+        /* Day label box styling */
+        .day-label {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 12px 16px;
+            font-size: 14px;
+            color: #374151;
+            font-weight: 500;
+        }
+
+        /* Cell container for checkbox + dropdown */
+        .cell-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 50px;
+        }
+
+        /* ✅ REQUIREMENT 4: Checkbox color को blue करना (black नहीं) */
+        input[type="checkbox"] {
+            accent-color: #3b82f6;
+            /* Blue color */
+            cursor: pointer;
+        }
+
+        /* Dropdown arrow styling */
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+            cursor: pointer;
+        }
+
+        select:hover {
+            border-color: #3b82f6;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .cell-container {
+                flex-direction: column;
+                gap: 4px;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 min-h-screen p-6 flex items-center justify-center">
+    <!-- Modal Container -->
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-7xl p-6">
+
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-6 pb-4 border-b">
+            <h1 class="text-xl font-semibold text-gray-800">Add Work Calendar</h1>
+            <button onclick="closeModal()"
+                class="text-gray-400 hover:text-gray-600 text-3xl font-bold leading-none transition-colors">×</button>
+        </div>
+
+        <!-- Checkbox for Half Day Mode -->
+        <div class="mb-6">
+            <label class="flex items-center space-x-3 cursor-pointer">
+                <input type="checkbox" id="halfDayCheckbox" onchange="toggleMode()"
+                    class="w-5 h-5 rounded focus:ring-2 focus:ring-blue-500">
+                <span class="text-sm text-gray-800 font-medium">Half working day & half weekend</span>
+            </label>
+        </div>
+
+        <!-- Table Container -->
+        <div class="bg-gray-50 rounded-lg p-4 overflow-x-auto">
+
+            <!-- ========================================== -->
+            <!-- MODE 1: Simple Checkboxes (Default Mode) -->
+            <!-- ✅ REQUIREMENT 2: कोई भी day by default selected नहीं है -->
+            <!-- ========================================== -->
+            <table id="simpleMode" class="w-full border-collapse">
+                <thead>
+                    <tr class="bg-gray-100">
+                        <th class="text-left p-3 text-sm font-semibold text-gray-700 w-36"></th>
+                        <th class="text-center p-3 text-sm font-semibold text-gray-700 w-24">All</th>
+                        <th class="text-center p-3 text-sm font-semibold text-gray-700 w-24">1st</th>
+                        <th class="text-center p-3 text-sm font-semibold text-gray-700 w-24">2nd</th>
+                        <th class="text-center p-3 text-sm font-semibold text-gray-700 w-24">3rd</th>
+                        <th class="text-center p-3 text-sm font-semibold text-gray-700 w-24">4th</th>
+                        <th class="text-center p-3 text-sm font-semibold text-gray-700 w-24">5th</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Sunday Row -->
+                    <tr class="bg-white border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                        <td class="p-3">
+                            <div class="day-label">Sunday</div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox"
+                                    onchange="toggleRowSimple(this, 'sunday')" class="w-5 h-5 rounded"></div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox" class="sunday-simple w-5 h-5 rounded">
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox" class="sunday-simple w-5 h-5 rounded">
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox" class="sunday-simple w-5 h-5 rounded">
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox" class="sunday-simple w-5 h-5 rounded">
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox" class="sunday-simple w-5 h-5 rounded">
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Monday Row -->
+                    <tr class="bg-white border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                        <td class="p-3">
+                            <div class="day-label">Monday</div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox"
+                                    onchange="toggleRowSimple(this, 'monday')" class="w-5 h-5 rounded"></div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox" class="monday-simple w-5 h-5 rounded">
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox" class="monday-simple w-5 h-5 rounded">
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox" class="monday-simple w-5 h-5 rounded">
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox" class="monday-simple w-5 h-5 rounded">
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox" class="monday-simple w-5 h-5 rounded">
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Tuesday Row -->
+                    <tr class="bg-white border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                        <td class="p-3">
+                            <div class="day-label">Tuesday</div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox"
+                                    onchange="toggleRowSimple(this, 'tuesday')" class="w-5 h-5 rounded"></div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox" class="tuesday-simple w-5 h-5 rounded">
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox" class="tuesday-simple w-5 h-5 rounded">
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox" class="tuesday-simple w-5 h-5 rounded">
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox" class="tuesday-simple w-5 h-5 rounded">
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox" class="tuesday-simple w-5 h-5 rounded">
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Wednesday Row -->
+                    <tr class="bg-white border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                        <td class="p-3">
+                            <div class="day-label">Wednesday</div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox"
+                                    onchange="toggleRowSimple(this, 'wednesday')" class="w-5 h-5 rounded"></div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox" class="wednesday-simple w-5 h-5 rounded">
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox" class="wednesday-simple w-5 h-5 rounded">
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox" class="wednesday-simple w-5 h-5 rounded">
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox" class="wednesday-simple w-5 h-5 rounded">
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox" class="wednesday-simple w-5 h-5 rounded">
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Thursday Row -->
+                    <tr class="bg-white border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                        <td class="p-3">
+                            <div class="day-label">Thursday</div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox"
+                                    onchange="toggleRowSimple(this, 'thursday')" class="w-5 h-5 rounded"></div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox" class="thursday-simple w-5 h-5 rounded">
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox" class="thursday-simple w-5 h-5 rounded">
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox" class="thursday-simple w-5 h-5 rounded">
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox" class="thursday-simple w-5 h-5 rounded">
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox" class="thursday-simple w-5 h-5 rounded">
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Friday Row -->
+                    <tr class="bg-white border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                        <td class="p-3">
+                            <div class="day-label">Friday</div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox"
+                                    onchange="toggleRowSimple(this, 'friday')" class="w-5 h-5 rounded"></div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox" class="friday-simple w-5 h-5 rounded">
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox" class="friday-simple w-5 h-5 rounded">
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox" class="friday-simple w-5 h-5 rounded">
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox" class="friday-simple w-5 h-5 rounded">
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox" class="friday-simple w-5 h-5 rounded">
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Saturday Row - ✅ NO pre-selection (REQUIREMENT 2) -->
+                    <tr class="bg-white hover:bg-gray-50 transition-colors">
+                        <td class="p-3">
+                            <div class="day-label">Saturday</div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox"
+                                    onchange="toggleRowSimple(this, 'saturday')" class="w-5 h-5 rounded"></div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox" class="saturday-simple w-5 h-5 rounded">
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox" class="saturday-simple w-5 h-5 rounded">
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox" class="saturday-simple w-5 h-5 rounded">
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox" class="saturday-simple w-5 h-5 rounded">
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container"><input type="checkbox" class="saturday-simple w-5 h-5 rounded">
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- ============================================= -->
+            <!-- MODE 2: Half Day Mode (Checkbox + Dropdown) -->
+            <!-- ✅ REQUIREMENT 2: कोई भी day by default selected नहीं है -->
+            <!-- ✅ REQUIREMENT 3: Dropdown में - के बाद Full Day है -->
+            <!-- ============================================= -->
+            <table id="halfDayMode" class="w-full border-collapse hidden">
+                <thead>
+                    <tr class="bg-gray-100">
+                        <th class="text-left p-3 text-sm font-semibold text-gray-700 w-36"></th>
+                        <th class="text-center p-3 text-sm font-semibold text-gray-700 min-w-[160px]">All</th>
+                        <th class="text-center p-3 text-sm font-semibold text-gray-700 min-w-[160px]">1st</th>
+                        <th class="text-center p-3 text-sm font-semibold text-gray-700 min-w-[160px]">2nd</th>
+                        <th class="text-center p-3 text-sm font-semibold text-gray-700 min-w-[160px]">3rd</th>
+                        <th class="text-center p-3 text-sm font-semibold text-gray-700 min-w-[160px]">4th</th>
+                        <th class="text-center p-3 text-sm font-semibold text-gray-700 min-w-[160px]">5th</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Sunday Row -->
+                    <tr class="bg-white border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                        <td class="p-3">
+                            <div class="day-label">Sunday</div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" onchange="toggleRowHalf(this, 'sunday')" class="w-5 h-5 rounded">
+                                <select onchange="applyDropdown('sunday', this.value)"
+                                    class="text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" class="sunday-half w-5 h-5 rounded">
+                                <select
+                                    class="sunday-drop text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" class="sunday-half w-5 h-5 rounded">
+                                <select
+                                    class="sunday-drop text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" class="sunday-half w-5 h-5 rounded">
+                                <select
+                                    class="sunday-drop text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" class="sunday-half w-5 h-5 rounded">
+                                <select
+                                    class="sunday-drop text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" class="sunday-half w-5 h-5 rounded">
+                                <select
+                                    class="sunday-drop text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Monday Row -->
+                    <tr class="bg-white border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                        <td class="p-3">
+                            <div class="day-label">Monday</div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" onchange="toggleRowHalf(this, 'monday')" class="w-5 h-5 rounded">
+                                <select onchange="applyDropdown('monday', this.value)"
+                                    class="text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" class="monday-half w-5 h-5 rounded">
+                                <select
+                                    class="monday-drop text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" class="monday-half w-5 h-5 rounded">
+                                <select
+                                    class="monday-drop text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" class="monday-half w-5 h-5 rounded">
+                                <select
+                                    class="monday-drop text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" class="monday-half w-5 h-5 rounded">
+                                <select
+                                    class="monday-drop text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" class="monday-half w-5 h-5 rounded">
+                                <select
+                                    class="monday-drop text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Tuesday Row -->
+                    <tr class="bg-white border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                        <td class="p-3">
+                            <div class="day-label">Tuesday</div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" onchange="toggleRowHalf(this, 'tuesday')"
+                                    class="w-5 h-5 rounded">
+                                <select onchange="applyDropdown('tuesday', this.value)"
+                                    class="text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" class="tuesday-half w-5 h-5 rounded">
+                                <select
+                                    class="tuesday-drop text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" class="tuesday-half w-5 h-5 rounded">
+                                <select
+                                    class="tuesday-drop text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" class="tuesday-half w-5 h-5 rounded">
+                                <select
+                                    class="tuesday-drop text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" class="tuesday-half w-5 h-5 rounded">
+                                <select
+                                    class="tuesday-drop text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" class="tuesday-half w-5 h-5 rounded">
+                                <select
+                                    class="tuesday-drop text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Wednesday Row -->
+                    <tr class="bg-white border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                        <td class="p-3">
+                            <div class="day-label">Wednesday</div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" onchange="toggleRowHalf(this, 'wednesday')"
+                                    class="w-5 h-5 rounded">
+                                <select onchange="applyDropdown('wednesday', this.value)"
+                                    class="text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" class="wednesday-half w-5 h-5 rounded">
+                                <select
+                                    class="wednesday-drop text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" class="wednesday-half w-5 h-5 rounded">
+                                <select
+                                    class="wednesday-drop text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" class="wednesday-half w-5 h-5 rounded">
+                                <select
+                                    class="wednesday-drop text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" class="wednesday-half w-5 h-5 rounded">
+                                <select
+                                    class="wednesday-drop text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" class="wednesday-half w-5 h-5 rounded">
+                                <select
+                                    class="wednesday-drop text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Thursday Row -->
+                    <tr class="bg-white border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                        <td class="p-3">
+                            <div class="day-label">Thursday</div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" onchange="toggleRowHalf(this, 'thursday')"
+                                    class="w-5 h-5 rounded">
+                                <select onchange="applyDropdown('thursday', this.value)"
+                                    class="text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" class="thursday-half w-5 h-5 rounded">
+                                <select
+                                    class="thursday-drop text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" class="thursday-half w-5 h-5 rounded">
+                                <select
+                                    class="thursday-drop text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" class="thursday-half w-5 h-5 rounded">
+                                <select
+                                    class="thursday-drop text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" class="thursday-half w-5 h-5 rounded">
+                                <select
+                                    class="thursday-drop text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" class="thursday-half w-5 h-5 rounded">
+                                <select
+                                    class="thursday-drop text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Friday Row -->
+                    <tr class="bg-white border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                        <td class="p-3">
+                            <div class="day-label">Friday</div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" onchange="toggleRowHalf(this, 'friday')" class="w-5 h-5 rounded">
+                                <select onchange="applyDropdown('friday', this.value)"
+                                    class="text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" class="friday-half w-5 h-5 rounded">
+                                <select
+                                    class="friday-drop text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" class="friday-half w-5 h-5 rounded">
+                                <select
+                                    class="friday-drop text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" class="friday-half w-5 h-5 rounded">
+                                <select
+                                    class="friday-drop text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" class="friday-half w-5 h-5 rounded">
+                                <select
+                                    class="friday-drop text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" class="friday-half w-5 h-5 rounded">
+                                <select
+                                    class="friday-drop text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Saturday Row - ✅ NO pre-selection (REQUIREMENT 2) -->
+                    <tr class="bg-white hover:bg-gray-50 transition-colors">
+                        <td class="p-3">
+                            <div class="day-label">Saturday</div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" onchange="toggleRowHalf(this, 'saturday')"
+                                    class="w-5 h-5 rounded">
+                                <select onchange="applyDropdown('saturday', this.value)"
+                                    class="text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" class="saturday-half w-5 h-5 rounded">
+                                <select
+                                    class="saturday-drop text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" class="saturday-half w-5 h-5 rounded">
+                                <select
+                                    class="saturday-drop text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" class="saturday-half w-5 h-5 rounded">
+                                <select
+                                    class="saturday-drop text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" class="saturday-half w-5 h-5 rounded">
+                                <select
+                                    class="saturday-drop text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="cell-container">
+                                <input type="checkbox" class="saturday-half w-5 h-5 rounded">
+                                <select
+                                    class="saturday-drop text-sm border border-gray-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-</option>
+                                    <option value="full">Full Day</option>
+                                    <option value="1st">1st Half</option>
+                                    <option value="2nd">2nd Half</option>
+                                </select>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Note Section -->
+        <div class="mt-6 p-4 bg-gray-100 rounded-lg">
+            <p class="text-sm text-gray-600"><strong class="text-gray-800">Calendar year definition</strong></p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex justify-start gap-3 mt-6">
+            <button onclick="saveCalendar()"
+                class="px-8 py-2.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium transition-colors shadow-sm">
+                Save
+            </button>
+            <button onclick="cancelForm()"
+                class="px-8 py-2.5 border border-gray-300 bg-white rounded-md text-gray-700 hover:bg-gray-50 font-medium transition-colors">
+                Cancel
+            </button>
+        </div>
+    </div>
+
+    <!-- JavaScript File -->
+    <script src="script.js"></script>
+</body>
+
+</html>
